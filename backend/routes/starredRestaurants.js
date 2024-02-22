@@ -21,6 +21,23 @@ let STARRED_RESTAURANTS = [
 ];
 
 /**
+ * Function: returns an array of starred restaurants joined with all restaurants.
+ */
+const joinStarredRestaurants = () => {
+  return STARRED_RESTAURANTS.map((starredRestaurant) => {
+    const restaurant = ALL_RESTAURANTS.find(
+      (restaurant) => restaurant.id === starredRestaurant.restaurantId
+    );
+
+    return {
+      id: starredRestaurant.id,
+      comment: starredRestaurant.comment,
+      name: restaurant.name,
+    };
+  })
+}
+
+/**
  * Feature 6: Getting the list of all starred restaurants.
  */
 router.get("/", (req, res) => {
@@ -28,19 +45,7 @@ router.get("/", (req, res) => {
    * We need to join our starred data with the all restaurants data to get the names.
    * Normally this join would happen in the database.
    */
-  const joinedStarredRestaurants = STARRED_RESTAURANTS.map(
-    (starredRestaurant) => {
-      const restaurant = ALL_RESTAURANTS.find(
-        (restaurant) => restaurant.id === starredRestaurant.restaurantId
-      );
-
-      return {
-        id: starredRestaurant.id,
-        comment: starredRestaurant.comment,
-        name: restaurant.name,
-      };
-    }
-  );
+  const joinedStarredRestaurants = joinStarredRestaurants()
 
   res.json(joinedStarredRestaurants);
 });
@@ -49,36 +54,39 @@ router.get("/", (req, res) => {
  * Feature 7: Getting a specific starred restaurant.
  */
 router.get('/:id', (req, res, next)=>{
-  const {id} = req.params;
+  //Join restaurant tables
+  const joinedStarredRestaurants = joinStarredRestaurants();
 
-  //Get the starred restaurant and check it exists
-  const starred_restaurant = STARRED_RESTAURANTS.find(r => r.id == id);
-  if(!starred_restaurant){
-    res.status(404).send('unable to find starred restaurant');
-  }
+  //Find matching id
+  const restaurant = joinedStarredRestaurants.find(r => r.id == req.params.id);
 
-  //Get the restaurant from all restaurants with matching id and check it exists
-  const restaurant = ALL_RESTAURANTS.find(r => starred_restaurant.restaurantId = r.id);
+  //Send error if no restaurant
   if(!restaurant){
-    res.status(404).send('unable to find restaurant');
+    res.sendStatus(404);
   }
 
-  //Create an object with the required details
-  const toReturn = {
-    name: restaurant.name,
-    comment: starred_restaurant.comment,
-    id: restaurant.id
-  }
-
-  //Send the object
-  res.send(toReturn)
-  
+  //Return json of restaurant
+  res.json(restaurant);
 })
+
 /**
  * Feature 8: Adding to your list of starred restaurants.
  */
+router.post('/', (req, res, next)=> {
+  const {id} = req.body;
 
+  const restaurant = ALL_RESTAURANTS.find(r => r.id == id);
+  if(!restaurant){
+    res.sendStatus(404);
+  }
 
+  STARRED_RESTAURANTS.push({
+    id: uuidv4(),
+    restaurantId: restaurant.id,
+    comment: ""
+  })
+  res.json(restaurant)
+})
 
 /**
  * Feature 9: Deleting from your list of starred restaurants.
