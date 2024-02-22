@@ -48,9 +48,32 @@ router.get("/", (req, res) => {
 /**
  * Feature 7: Getting a specific starred restaurant.
  */
+router.get('/:id', (req, res, next)=>{
+  const {id} = req.params;
 
+  //Get the starred restaurant and check it exists
+  const starred_restaurant = STARRED_RESTAURANTS.find(r => r.id == id);
+  if(!starred_restaurant){
+    res.status(404).send('unable to find starred restaurant');
+  }
 
+  //Get the restaurant from all restaurants with matching id and check it exists
+  const restaurant = ALL_RESTAURANTS.find(r => starred_restaurant.restaurantId = r.id);
+  if(!restaurant){
+    res.status(404).send('unable to find restaurant');
+  }
 
+  //Create an object with the required details
+  const toReturn = {
+    name: restaurant.name,
+    comment: starred_restaurant.comment,
+    id: restaurant.id
+  }
+
+  //Send the object
+  res.send(toReturn)
+  
+})
 /**
  * Feature 8: Adding to your list of starred restaurants.
  */

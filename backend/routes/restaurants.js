@@ -50,7 +50,7 @@ router.post("/", (req, res) => {
 
   // Generate a unique ID for the new restaurant.
   const newId = uuidv4();
-  const newRestaurant = {
+  const newRestaurant = { 
     id: newId,
     name,
   };
