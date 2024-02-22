@@ -91,12 +91,32 @@ router.post('/', (req, res, next)=> {
 /**
  * Feature 9: Deleting from your list of starred restaurants.
  */
-
+router.delete('/:id', (req, res, next)=>{
+  const {id} = req.params;
+  const restaurant = STARRED_RESTAURANTS.find(r=>r.id==id);
+  if(!restaurant){
+    res.sendStatus(404)
+  }
+  const REVISED_LIST = STARRED_RESTAURANTS.filter(r=>r!==restaurant);
+  STARRED_RESTAURANTS = REVISED_LIST;
+  res.sendStatus(200)
+})
 
 /**
  * Feature 10: Updating your comment of a starred restaurant.
  */
+router.put('/:id', (req, res, next) => {
+  const {id} = req.params;
+  const {newComment} = req.body
+  let restaurant = STARRED_RESTAURANTS.find(r=>r.id==id);
 
+  if(!restaurant){
+    res.sendStatus(404);
+  }
+
+  restaurant.comment = newComment;
+  res.sendStatus(200)
+})
 
 
 module.exports = router;
